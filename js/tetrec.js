@@ -80,12 +80,25 @@ var i18n = {
 	}
 };
 
+function fixPageContentHeight(event) {
+	var screen = $.mobile.getScreenHeight(),
+    header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight(),
+    footer = $(".ui-footer").hasClass("ui-footer-fixed") ? $(".ui-footer").outerHeight() - 1 : $(".ui-footer").outerHeight(),
+    contentCurrent = $(".ui-content").outerHeight() - $(".ui-content").height(),
+    content = screen - header - footer - contentCurrent;
+	$(".ui-content").height(content);
+}
+
+$(document).on("pagecontainertransition", fixPageContentHeight);
+$(window).on("orientationchange", fixPageContentHeight);
+$(window).on("resize", fixPageContentHeight);
+
 $( "body" ).on( "pagecontainershow", function( event, ui ) {
 	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
 	if (activePageId === "tetrec_page") {
 		prepareGame();
 	} else if (activePageId === "main_page") {
-		
+		showMenuBackground();
 	}
 });
 
