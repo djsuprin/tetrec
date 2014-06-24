@@ -13,7 +13,7 @@ var colors = {
 
 var canvas;
 var context;
-var glass;
+var glass = [];
 var figures;
 var figure = [];
 var figure_x;
@@ -60,29 +60,45 @@ var strings;
 
 // Translations for UI strings
 var i18n = {
-	'ru' : {
+	'en' : {
 		'start' : 'Start again',
 		'finish' : 'Finish',
 		'tetrec' : 'Tetrec',
 		'paused' : 'Tetrec paused',
 		'lines' : 'Lines',
-		'level' : 'Level'
+		'level' : 'Level',
+		'author' : 'Vladimir Vasilyev, 2014'
 	},
-	'en' : {
+	'ru' : {
 		'start' : 'Начать заново',
 		'finish' : 'Закончить',
 		'tetrec' : 'Тетрец',
 		'paused' : 'Тетрец на паузе',
 		'lines' : 'Линии',
-		'level' : 'Уровень'
+		'level' : 'Уровень',
+		'author' : 'Владимир Васильев, 2014'
 	}
 };
 
-$(document).ready(prepareGame);
+$( "body" ).on( "pagecontainershow", function( event, ui ) {
+	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
+	if (activePageId === "tetrec_page") {
+		prepareGame();
+	} else if (activePageId === "main_page") {
+		
+	}
+});
 
 function prepareVariables() {
 	touching = false;
 	direction = directions.NONE;
+	// Clear cup content
+	for (i = 0; i < cols_count; i++) {
+		glass[i] = [];
+		for (j = 0; j < rows_count; j++) {
+			glass[i][j] = 0;
+		}
+	}
 }
 
 function prepareTranslation() {
@@ -94,44 +110,32 @@ function prepareTranslation() {
 	}
 }
 
+$('#gameButton').tap(function(event) {
+	endGame();
+	startGame();
+});
+
 function prepareGame() {
 	disableTextSelection();
 	prepareTranslation();
 	// Translate UI strings
-	$('#gameButton').text(strings.finish);
 	$('#linesCaption').text(strings.lines);
 	$('#levelCaption').text(strings.level);
-	$('h1').text(strings.tetrec);
-
+	$('h1 #tetrecPageHeader').text(strings.tetrec);
+	// Calculate cell dimensions
 	cell_width = $('#tetrec_canvas').width() / cols_count;
 	cell_height = $('#tetrec_canvas').height() / rows_count;
-	glass = [];
-	for (i = 0; i < cols_count; i++) {
-		glass[i] = [];
-	}
 	canvas = document.getElementById('tetrec_canvas');
 	context = canvas.getContext('2d');
 	endGame();
-	$("#gameButton").click(function () {
-		if ($(this).text() == strings.finish) {
-			endGame();
-		}
-		else {
-			endGame();
-			startGame();
-		}
-	});
 	prepareFigures();
 	$('#tetrec_canvas').attr("tabindex", "0");
-	// Show textarea console to debug on mobile devices
-	$('#tetrec_console').hide();
 	startGame();
 }
 
 function startGame() {
 	prepareVariables();
 	$('#tetrec_canvas').blur(pauseGame).focus(unpauseGame);
-	$('#gameButton').text(strings.finish);
 	generateFigureTypeAndPosition();
 	count = 0;
 	level = 0;
@@ -150,16 +154,10 @@ function endGame() {
 		.unbind('blur')
 		//.unbind('keydown')
 		//.unbind('mousemove')
-	for (i = 0; i < cols_count; i++) {
-		for (j = 0; j < rows_count; j++) {
-			glass[i][j] = 0;
-		}
-	}
 	playing = false;
 	//clearTimeout(down_timer);
 	//down_timer = 0;
 	drawBackground();
-	$('#gameButton').text(strings.start);
 }
 
 function pauseGame() {
@@ -175,7 +173,7 @@ function pauseGame() {
 	$( document ).off ( "vmousedown", "#tetrec_canvas" );
 	$( document ).off ( "vmouseup", "#tetrec_canvas" );
 	$( document ).off ( "vmouseout", "#tetrec_canvas" );
-	$('h1').text(strings.paused);
+	$('h1 #tetrecPageHeader').text(strings.paused);
 }
 
 function unpauseGame() {
@@ -186,7 +184,7 @@ function unpauseGame() {
 	$( document ).on ( "vmousedown", "#tetrec_canvas", onTouchStart );
 	$( document ).on ( "vmouseup", "#tetrec_canvas", onTouchEnd );
 	$( document ).on ( "vmouseout", "#tetrec_canvas", onTouchOut );
-	$('h1').text(strings.tetrec);
+	$('h1 #tetrecPageHeader').text(strings.tetrec);
 	if (down_timer == 0) {
 		down_timer = setTimeout(processGame, interval);
 	}

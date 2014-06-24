@@ -5,20 +5,39 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="css/jquery.mobile-1.4.2.css"></link>
+		<link rel="stylesheet" href="css/jqm-icon-pack-fa.css"></link>
 		<link rel="stylesheet" href="css/tetrec.css"></link>
 	</head>
 	<body>
 		<div id="main_page" data-role="page">
 			<div data-role="header">
-				Tetrec Main Page
+				<h1>Tetrec</h1>
 			</div>
 
 			<div role="main" class="ui-content">
-				
+				<canvas id="bg_canvas">
+					<strong><a href="http://google.com/chrome">Upgrade your browser!</a></strong>
+				</canvas>
+				<div class="ui-grid-b tetrec-menu-container">
+					<div class="ui-block-left ui-block-a"><!-- Placeholder --></div>
+					<div class="ui-block-center ui-block-b tetrec-main-menu">
+						<div data-role="controlgroup" data-type="vertical">
+							<a href="#tetrec_page" class="ui-btn">Play Tetrec</a>
+							<a href="#highscore" class="ui-btn">Highscore</a>
+						</div>
+						<div data-role="controlgroup" data-type="horizontal" class="tetrec-social-buttons">
+							<a href="http://google.com" class="ui-btn ui-icon-google-plus ui-btn-icon-notext" id="share_google" title="Google+">Menu</a>
+							<a href="http://twitter.com" class="ui-btn ui-icon-twitter ui-btn-icon-notext" id="share_twitter" title="Twitter">Twitter</a>
+							<a href="http://facebook.com" class="ui-btn ui-icon-facebook ui-btn-icon-notext" id="share_facebook" title="Facebook">Facebook</a>
+							<a href="http://vk.com" class="ui-btn ui-icon-vk ui-btn-icon-notext" id="share_vk" title="Vk">Vk</a>
+						</div>
+					</div>
+					<div class="ui-block-right ui-block-c"><!-- Placeholder --></div>
+				</div>
 			</div>
 
-			<div data-role="footer">
-				Владимир Васильев, 2014
+			<div data-role="footer" data-position="fixed">
+				<h2>Владимир Васильев, 2014</h2>
 			</div>
 		</div>
 
@@ -27,14 +46,16 @@
 			<div data-role="panel" id="menu_panel" data-display="push">
 				<ul data-role="listview">
 					<li data-role="list-divider">Menu</li>
-					<li data-icon="back"><a href="#" data-rel="close">Resume</a></li>
+					<li data-icon="back"><a href="#" id="gameButton" data-rel="close">Restart</a></li>
 					<li data-icon="home"><a href="#" data-rel="back">Quit</a></li>
 				</ul>
 			</div>
 
 			<div data-role="header">
-				<a href="#menu_panel" class="ui-btn ui-icon-grid ui-btn-icon-left" id="menu_item" title="Menu">Menu</a>
-				<h1>TETREC</h1>
+				<div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-left">
+					<a href="#menu_panel" class="ui-btn ui-icon-pause ui-btn-icon-notext" id="menu_item" title="Menu">Menu</a>
+				</div>
+				<h1 id="tetrecPageHeader">Tetrec</h1>
 				<div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-right">
 					<a href="#" class="ui-btn ui-btn-icon-left ui-icon-bars" id="lines" title="Lines">Lines</a>
 					<a href="#" class="ui-btn ui-btn-icon-left ui-icon-arrow-u" id="level" title="Level">Level</a>
@@ -42,26 +63,15 @@
 			</div>
 
 			<div role="main" class="ui-content">
-				<div style="display: table; width: 100%;">
-					<div style="display: table-row;">
-						<div style="display: table-cell; width: 50%;" align="right">
-							<canvas id="tetrec_canvas" width="200" height="400" style="border: solid 2px #336699;">
-								<strong><a href="http://google.com/chrome">Upgrade your browser!</a></strong>
-							</canvas>
-						</div>
-						<div style="display: table-cell; vertical-align: top; padding-left: 20px; width: 50%;">
-							<button id="gameButton" class="ui-btn ui-btn-inline">Finish</button><br/><br/>
-							<div>
-								<textarea cols="10" rows="5" name="tetrec_console" id="tetrec_console"></textarea>
-							</div>
-						</div>
-					</div>
-				</div>
+				<canvas id="tetrec_canvas" width="200" height="400" style="border: solid 2px #336699;">
+					<strong><a href="http://google.com/chrome">Upgrade your browser!</a></strong>
+				</canvas>
 			</div>
 		</div>
 		
 		<script type="text/javascript" src="js/jquery-2.1.1.js"></script>
 		<script type="text/javascript" src="js/jquery.mobile-1.4.2.js"></script>
 		<script type="text/javascript" src="js/tetrec.js"></script>
+		<script type="text/javascript" src="js/main-menu-bg.js"></script>
 	</body>
 </html>
