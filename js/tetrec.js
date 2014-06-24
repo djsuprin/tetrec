@@ -5,10 +5,10 @@ var cols_count = 10;
 var rows_count = 20;
 
 var colors = {
-	backgroundGrid : '#336699',
+	cupGrid : '#336699',
 	figure : '#336699',
 	cupContent : '#000000',
-	nextFigureShadow : 'rgba(125, 125, 125, 0.5)'
+	nextFigureShadow : 'rgba(125, 125, 125, 0.7)'
 };
 
 var canvas;
@@ -89,16 +89,58 @@ function fixPageContentHeight(event) {
 	$(".ui-content").height(content);
 }
 
+function setBackground($selector) {
+	var squareWidth = 20;
+	var squareHeight = 20;
+	var canvasWidth = 100;
+	var canvasHeight = 100;
+	var squaresInRow = canvasWidth / squareWidth;
+	var squaresInColumn = canvasHeight / squareHeight;
+	var canvas = document.createElement("canvas");
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	var context = canvas.getContext('2d');
+	//first we clear the canvas
+	context.clearRect(0, 0, canvasWidth, canvasHeight);
+	//setup the palette array
+	var grayPalette = ["#aaaaaa","#bbbbbb","#cccccc","#dddddd","#eeeeee"];
+
+	//create 10x10 squares
+	for (var i = 0; i < squaresInRow; i++) {
+		for(var j = 0; j < squaresInColumn; j++) {
+			//indicate when starting drawing a rectangle
+			context.beginPath();
+			context.rect(0 + squareHeight * j, 0 + squareWidth * i, squareHeight, squareWidth);
+
+			//choose a random color from the palette
+			var randomColorIndex = Math.round(Math.random() * (grayPalette.length-1));
+			context.fillStyle = grayPalette[randomColorIndex];
+
+			//fill the rectangle with the selected color
+			context.fill();
+
+			//draw a white border for the rectangle
+			context.strokeStyle = "#ffffff";
+			context.stroke();
+
+			//indicating when finished drawing the rectangle
+			context.closePath();
+		}
+	}
+
+	var backgroundImage = canvas.toDataURL();
+	$selector.css('background', "transparent url('" + backgroundImage + "') repeat");
+}
+
 $(document).on("pagecontainertransition", fixPageContentHeight);
 $(window).on("orientationchange", fixPageContentHeight);
 $(window).on("resize", fixPageContentHeight);
 
 $( "body" ).on( "pagecontainershow", function( event, ui ) {
 	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
+	setBackground($('#' + activePageId + ' .ui-content'));
 	if (activePageId === "tetrec_page") {
 		prepareGame();
-	} else if (activePageId === "main_page") {
-		showMenuBackground();
 	}
 });
 
@@ -476,7 +518,7 @@ function processGame() {
 }
 
 function drawBackground() {
-	context.strokeStyle = '#336699';
+	context.strokeStyle = colors.cupGrid;
 	context.lineWidth = 1;
 	var x = cell_width, y = 0;
 	for (i = 1; i < cols_count; i++) {
@@ -500,7 +542,7 @@ function drawScene() {
 	// Draw background
 	drawBackground();
 	// Draw cup content
-	context.fillStyle = '#000000';
+	context.fillStyle = colors.cupContent;
 	for (i = 0; i < cols_count; i++) {
 		for (j = 0; j < rows_count; j++) {
 			if (glass[i][j] == 1) {
@@ -509,14 +551,14 @@ function drawScene() {
 		}
 	}
 	// Draw next figure shadow
-	context.fillStyle = "rgba(125, 125, 125, 0.5)";
+	context.fillStyle = colors.nextFigureShadow;
 	next_figure = [];
 	for (i = 0; i < 4; i++) {
 		next_figure[i] = figures[next_figure_type][next_figure_position][i].slice(0);
 		context.fillRect((next_figure[i][0] + 4) * cell_width, next_figure[i][1] * cell_height, cell_width, cell_height);
 	}
 	// Draw current figure
-	context.fillStyle = '#336699';
+	context.fillStyle = colors.figure;
 	for (i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][figure_position][i].slice(0);
 		context.fillRect((figure[i][0] + figure_x) * cell_width, (figure[i][1] + figure_y) * cell_height, cell_width, cell_height);

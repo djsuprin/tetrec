@@ -6,18 +6,32 @@
 	text-align: center;
 }
 
-.tetrec-social-buttons {
-	margin-top: 10%;
-}
-
 .ui-header {
 	height: 40px;
 }
 
-.ui-footer {
+#main_page .ui-footer {
     height: 40px;
 }
 
-/*@media all and (min-width: 36em) {
+.ui-grid-b .ui-block-a, .ui-grid-b .ui-block-c {
+	width: 0;
+}
 
-}*/
+.ui-grid-b .ui-block-b {
+	width: 100%;
+}
+
+@media all and (min-width: 40em) {
+	.ui-grid-b .ui-block-a, .ui-grid-b .ui-block-c {
+		width: 30%;
+	}
+
+	.ui-grid-b .ui-block-b {
+		width: 40%;
+	}
+
+	.tetrec-social-buttons {
+		margin-top: 10%;
+	}
+}
