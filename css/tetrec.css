@@ -1,3 +1,8 @@
+@font-face {
+	font-family: 'Press Start 2P';
+	src: url(PressStart2P.ttf);
+}
+
 .tetrec-main-menu {
 	text-align: center;
 }
@@ -6,13 +11,10 @@
 	text-align: center;
 }
 
-/*.ui-header {
-	height: 40px;
+h1 {
+	font-family: 'Press Start 2P';
+	font-size: 2em;
 }
-
-#main_page .ui-footer {
-    height: 40px;
-}*/
 
 #tetrec_page .ui-content {
 	padding: 0;
@@ -37,6 +39,24 @@
 
 	.tetrec-social-buttons {
 		margin-top: 10%;
+	}
+
+	#tetrec_page .ui-content {
+		padding: 1%;
+	}
+}
+
+@media all and (min-width: 52em) {
+	.ui-grid-b .ui-block-a, .ui-grid-b .ui-block-c {
+		width: 35%;
+	}
+
+	.ui-grid-b .ui-block-b {
+		width: 30%;
+	}
+
+	.tetrec-social-buttons {
+		margin-top: 20%;
 	}
 
 	#tetrec_page .ui-content {

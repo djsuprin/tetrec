@@ -5,13 +5,19 @@ var cols_count = 10;
 var rows_count = 20;
 
 var colors = {
+	cupBackground : 'rgba(125, 125, 125, 0.6)',
 	cupGrid : '#336699',
 	figure : '#336699',
 	cupContent : '#000000',
-	nextFigureShadow : 'rgba(125, 125, 125, 0.7)'
+	nextFigureShadow : 'rgba(125, 125, 125, 0.9)'
 };
 
+var strings;
+
+var pageContentHeight;
+
 var canvas;
+var canvas_width, canvas_height;
 var context;
 var glass = [];
 var figures;
@@ -37,6 +43,7 @@ var directions = {
 
 var touching = false;
 var touch_move_threshold = 10;
+var touch_move_down_threshold = 30;
 var touch_move_turn_threshold = 50;
 var oldPageX;
 var oldPageY;
@@ -55,91 +62,52 @@ var playing = false;
 
 var sceneToBeUpdated = false;
 
-// Strings translated into the language configured in the client's browser
-var strings;
-
-// Translations for UI strings
-var i18n = {
-	'en' : {
-		'start' : 'Start again',
-		'finish' : 'Finish',
-		'tetrec' : 'Tetrec',
-		'paused' : 'Tetrec paused',
-		'lines' : 'Lines',
-		'level' : 'Level',
-		'author' : 'Vladimir Vasilyev, 2014'
-	},
-	'ru' : {
-		'start' : 'Начать заново',
-		'finish' : 'Закончить',
-		'tetrec' : 'Тетрец',
-		'paused' : 'Тетрец на паузе',
-		'lines' : 'Линии',
-		'level' : 'Уровень',
-		'author' : 'Владимир Васильев, 2014'
+function adjustPageContentHeight() {
+	var screen = $.mobile.getScreenHeight();
+	var header = 0;
+	if ($(".ui-header").length > 0) {
+		header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight();
 	}
-};
-
-function fixPageContentHeight(event) {
-	var screen = $.mobile.getScreenHeight(),
-    header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight(),
-    footer = $(".ui-footer").hasClass("ui-footer-fixed") ? $(".ui-footer").outerHeight() - 1 : $(".ui-footer").outerHeight(),
-    contentCurrent = $(".ui-content").outerHeight() - $(".ui-content").height(),
-    content = screen - header - footer - contentCurrent;
-	$(".ui-content").height(content);
+    contentCurrent = $(".ui-content").outerHeight() - $(".ui-content").height();
+    var footer = 0;
+    if ($(".ui-footer").length > 0) {
+    	footer = $(".ui-footer").hasClass("ui-footer-fixed") ? $(".ui-footer").outerHeight() - 1 : $(".ui-footer").outerHeight();
+    }
+    pageContentHeight = screen - header - footer - contentCurrent;
+	$(".ui-content").height(pageContentHeight);
 }
 
-function setBackground($selector) {
-	var squareWidth = 20;
-	var squareHeight = 20;
-	var canvasWidth = 100;
-	var canvasHeight = 100;
-	var squaresInRow = canvasWidth / squareWidth;
-	var squaresInColumn = canvasHeight / squareHeight;
-	var canvas = document.createElement("canvas");
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-	var context = canvas.getContext('2d');
-	//first we clear the canvas
-	context.clearRect(0, 0, canvasWidth, canvasHeight);
-	//setup the palette array
-	var grayPalette = ["#aaaaaa","#bbbbbb","#cccccc","#dddddd","#eeeeee"];
-
-	//create 10x10 squares
-	for (var i = 0; i < squaresInRow; i++) {
-		for(var j = 0; j < squaresInColumn; j++) {
-			//indicate when starting drawing a rectangle
-			context.beginPath();
-			context.rect(0 + squareHeight * j, 0 + squareWidth * i, squareHeight, squareWidth);
-
-			//choose a random color from the palette
-			var randomColorIndex = Math.round(Math.random() * (grayPalette.length-1));
-			context.fillStyle = grayPalette[randomColorIndex];
-
-			//fill the rectangle with the selected color
-			context.fill();
-
-			//draw a white border for the rectangle
-			context.strokeStyle = "#ffffff";
-			context.stroke();
-
-			//indicating when finished drawing the rectangle
-			context.closePath();
-		}
-	}
-
-	var backgroundImage = canvas.toDataURL();
-	$selector.css('background', "transparent url('" + backgroundImage + "') repeat");
+function adjustCanvasHeight() {
+	canvas_height = pageContentHeight * 0.99;
+	canvas_width = canvas_height / 2;	
+	canvas.height = canvas_height;
+	canvas.width = canvas_width;
+	// Calculate cell dimensions
+	cell_width = canvas_width / cols_count;
+	cell_height = canvas_height / rows_count;
+	/*console.log("cell width: " + cell_width + ", cell height: " + cell_height + 
+		", canvas width: " + canvas_width + ", canvas height: " + canvas_height);*/
+	console.log("adjusting canvas size!");
 }
 
-$(document).on("pagecontainertransition", fixPageContentHeight);
-$(window).on("orientationchange", fixPageContentHeight);
-$(window).on("resize", fixPageContentHeight);
+//$(document).on("pagecontainertransition", adjustPageContentHeight);
+$(window).on("orientationchange", function() {
+	adjustPageContentHeight();
+	adjustCanvasHeight();
+}); // TODO: decide what to do on orientation change (landscape mode on smartphone)
+$(window).on("resize", function() {
+	adjustPageContentHeight();
+	adjustCanvasHeight();
+});
 
 $( "body" ).on( "pagecontainershow", function( event, ui ) {
+	adjustPageContentHeight();
 	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
 	setBackground($('#' + activePageId + ' .ui-content'));
 	if (activePageId === "tetrec_page") {
+		canvas = document.getElementById('tetrec_canvas');
+		context = canvas.getContext('2d');
+		adjustCanvasHeight();
 		prepareGame();
 	}
 });
@@ -177,11 +145,6 @@ function prepareGame() {
 	$('#linesCaption').text(strings.lines);
 	$('#levelCaption').text(strings.level);
 	$('h1 #tetrecPageHeader').text(strings.tetrec);
-	// Calculate cell dimensions
-	cell_width = $('#tetrec_canvas').width() / cols_count;
-	cell_height = $('#tetrec_canvas').height() / rows_count;
-	canvas = document.getElementById('tetrec_canvas');
-	context = canvas.getContext('2d');
 	endGame();
 	prepareFigures();
 	$('#tetrec_canvas').attr("tabindex", "0");
@@ -210,8 +173,8 @@ function endGame() {
 		//.unbind('keydown')
 		//.unbind('mousemove')
 	playing = false;
-	//clearTimeout(down_timer);
-	//down_timer = 0;
+	clearTimeout(down_timer);
+	down_timer = 0;
 	drawBackground();
 }
 
@@ -323,7 +286,7 @@ function onTouchMove(event) {
 		direction = directions.LEFT;
 	}
 
-	if (direction != directions.DOWN && yDiff > touch_move_threshold) {
+	if (direction != directions.DOWN && yDiff > touch_move_down_threshold) {
 		direction = directions.DOWN;
 	}
 	if (direction != directions.TURN && yDiff < -touch_move_turn_threshold) {
@@ -518,6 +481,11 @@ function processGame() {
 }
 
 function drawBackground() {
+	console.log("drawing bg");
+	// Fill the cup with background color
+	context.fillStyle = colors.cupBackground;
+	context.fillRect(0, 0, $('#tetrec_canvas').width(), $('#tetrec_canvas').height());
+	// Draw cup grid
 	context.strokeStyle = colors.cupGrid;
 	context.lineWidth = 1;
 	var x = cell_width, y = 0;
@@ -537,6 +505,7 @@ function drawBackground() {
 }
 
 function drawScene() {
+	console.log("drawing scene");
 	// Clear the scene
 	context.clearRect(0, 0, $('#tetrec_canvas').width(), $('#tetrec_canvas').height());
 	// Draw background
@@ -576,4 +545,47 @@ function disableTextSelection() {
            '-ms-user-select':'none',
            'user-select':'none'
      }).bind('selectstart', function(){ return false; });
+}
+
+function setBackground($selector) {
+	var squareWidth = 20;
+	var squareHeight = 20;
+	var canvasWidth = 100;
+	var canvasHeight = 100;
+	var squaresInRow = canvasWidth / squareWidth;
+	var squaresInColumn = canvasHeight / squareHeight;
+	var canvas = document.createElement("canvas");
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	var context = canvas.getContext('2d');
+	//first we clear the canvas
+	context.clearRect(0, 0, canvasWidth, canvasHeight);
+	//setup the palette array
+	var grayPalette = ["#aaaaaa","#bbbbbb","#cccccc","#dddddd","#eeeeee"];
+
+	//create 10x10 squares
+	for (var i = 0; i < squaresInRow; i++) {
+		for(var j = 0; j < squaresInColumn; j++) {
+			//indicate when starting drawing a rectangle
+			context.beginPath();
+			context.rect(0 + squareHeight * j, 0 + squareWidth * i, squareHeight, squareWidth);
+
+			//choose a random color from the palette
+			var randomColorIndex = Math.round(Math.random() * (grayPalette.length-1));
+			context.fillStyle = grayPalette[randomColorIndex];
+
+			//fill the rectangle with the selected color
+			context.fill();
+
+			//draw a white border for the rectangle
+			context.strokeStyle = "#ffffff";
+			context.stroke();
+
+			//indicating when finished drawing the rectangle
+			context.closePath();
+		}
+	}
+
+	var backgroundImage = canvas.toDataURL();
+	$selector.css('background', "transparent url('" + backgroundImage + "') repeat");
 }
