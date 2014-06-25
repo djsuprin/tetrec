@@ -15,7 +15,6 @@
 }*/
 
 #tetrec_page .ui-content {
-	margin: 0;
 	padding: 0;
 }
 
@@ -38,5 +37,9 @@
 
 	.tetrec-social-buttons {
 		margin-top: 10%;
+	}
+
+	#tetrec_page .ui-content {
+		padding: 1%;
 	}
 }
