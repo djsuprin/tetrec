@@ -36,7 +36,7 @@ var directions = {
 }
 
 var touching = false;
-var touch_move_threshold = 30;
+var touch_move_threshold = 10;
 var touch_move_turn_threshold = 50;
 var oldPageX;
 var oldPageY;

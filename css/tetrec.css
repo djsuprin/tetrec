@@ -6,12 +6,17 @@
 	text-align: center;
 }
 
-.ui-header {
+/*.ui-header {
 	height: 40px;
 }
 
 #main_page .ui-footer {
     height: 40px;
+}*/
+
+#tetrec_page .ui-content {
+	margin: 0;
+	padding: 0;
 }
 
 .ui-grid-b .ui-block-a, .ui-grid-b .ui-block-c {
