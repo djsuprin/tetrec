@@ -100,7 +100,7 @@ $(window).on("resize", function() {
 	adjustCanvasHeight();
 });
 
-$( "body" ).on( "pagecontainershow", function( event, ui ) {
+$( document ).on( "pagecontainershow", function( event, ui ) {
 	adjustPageContentHeight();
 	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
 	setBackground($('#' + activePageId + ' .ui-content'));
