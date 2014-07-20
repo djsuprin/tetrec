@@ -101,10 +101,12 @@ $(window).on("resize", function() {
 });
 
 $( document ).on( "pagecontainershow", function( event, ui ) {
+	console.log("Page was changed");
 	adjustPageContentHeight();
 	var activePageId = $( "body" ).pagecontainer( "getActivePage" ).attr('id');
 	setBackground($('#' + activePageId + ' .ui-content'));
 	if (activePageId === "tetrec_page") {
+		console.log("Staring new game");
 		canvas = document.getElementById('tetrec_canvas');
 		context = canvas.getContext('2d');
 		adjustCanvasHeight();
