@@ -1,3 +1,5 @@
+/* global $, i18n, navigator */
+
 // Game configurable defaults
 var cell_width = 20;
 var cell_height = 20;
@@ -25,6 +27,7 @@ var $tetrecPageHeader;
 var canvas, $canvas;
 var canvas_width, canvas_height;
 var context;
+var contentCurrent;
 var glass = [];
 var figures;
 var figure = [];
@@ -130,9 +133,9 @@ function prepareVariables() {
 	touching = false;
 	direction = directions.NONE;
 	// Clear cup content
-	for (i = 0; i < cols_count; i++) {
+	for (var i = 0; i < cols_count; i++) {
 		glass[i] = [];
-		for (j = 0; j < rows_count; j++) {
+		for (var j = 0; j < rows_count; j++) {
 			glass[i][j] = 0;
 		}
 	}
@@ -224,7 +227,7 @@ function unpauseGame() {
 
 function prepareFigures() {
 	figures = []; // 7 figure types
-	for (i = 0; i < 7; i++) {
+	for (var i = 0; i < 7; i++) {
 		figures[i] = [];
 	}
 
@@ -356,15 +359,15 @@ function onTouchOut(event) {
 
 function dropFigure() {
 	// Get figure copy
-	for (i = 0; i < 4; i++) {
+	for (var i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][figure_position][i].slice(0);
 		figure[i][0] += figure_x;
 		figure[i][1] += figure_y;
 	}
 	// TODO: remember what this code does and add comments with the details
-	the_highest_places = [rows_count - 1, rows_count - 1, rows_count - 1, rows_count - 1];
-	for (i = 0; i < 4; i++) {
-		for (j = figure[i][1]; j < rows_count; j++) {
+	var the_highest_places = [rows_count - 1, rows_count - 1, rows_count - 1, rows_count - 1];
+	for (var i = 0; i < 4; i++) {
+		for (var j = figure[i][1]; j < rows_count; j++) {
 			if (glass[figure[i][0]][j] == 1) {
 				the_highest_places[i] = j - figure[i][1] - 1;
 				break;
@@ -372,7 +375,7 @@ function dropFigure() {
 		}
 		the_highest_places[i] = j - figure[i][1] - 1;
 	}
-	min_height = Math.min(the_highest_places[0], the_highest_places[1], the_highest_places[2],
+	var min_height = Math.min(the_highest_places[0], the_highest_places[1], the_highest_places[2],
 		the_highest_places[3]);
 	figure_y += min_height;
 	checkIfDropped();
@@ -380,12 +383,12 @@ function dropFigure() {
 }
 
 function turn() {
-	temp_figure_position = figure_position;
+	var temp_figure_position = figure_position;
 	temp_figure_position++;
 	if (temp_figure_position > 3) {
 		temp_figure_position = 0;
 	}
-	for (i = 0; i < 4; i++) {
+	for (var i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][temp_figure_position][i].slice(0);
 		figure[i][0] += figure_x;
 		figure[i][1] += figure_y;
@@ -398,7 +401,7 @@ function turn() {
 }
 
 function moveLeft() {
-	for (i = 0; i < 4; i++) {
+	for (var i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][figure_position][i].slice(0);
 		figure[i][0] += figure_x;
 		figure[i][1] += figure_y;
@@ -411,7 +414,7 @@ function moveLeft() {
 }
 
 function moveRight() {
-	for (i = 0; i < 4; i++) {
+	for (var i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][figure_position][i].slice(0);
 		figure[i][0] += figure_x;
 		figure[i][1] += figure_y;
@@ -430,8 +433,9 @@ function moveDown() {
 }
 
 function checkIfDropped() {
-	dropped = false;
-	for (i = 0; i < 4; i++) {
+	var line_filled;
+	var dropped = false;
+	for (var i = 0; i < 4; i++) {
 		figure[i] = figures[figure_type][figure_position][i].slice(0);
 		figure[i][0] += figure_x;
 		figure[i][1] += figure_y;
@@ -446,24 +450,24 @@ function checkIfDropped() {
 	}
 	if (dropped) {
 		// Add fallen figure to cup content
-		for (i = 0; i < 4; i++) {
+		for (var i = 0; i < 4; i++) {
 			glass[figure[i][0]][figure[i][1]] = 1;
 		}
 		// Check if line is filled
-		for (j = rows_count - 1; j > 0; j--) {
+		for (var j = rows_count - 1; j > 0; j--) {
 			line_filled = true;
-			for (i = 0; i < cols_count; i++) {
+			for (var i = 0; i < cols_count; i++) {
 				if (glass[i][j] != 1) {
 					line_filled = false;
 				}
 			}
 			if (line_filled) {
-				for (k = j; k > 0; k--) {
-					for (i = 0; i < cols_count; i++) {
+				for (var k = j; k > 0; k--) {
+					for (var i = 0; i < cols_count; i++) {
 						glass[i][k] = glass[i][k-1];
 					}
 				}
-				for (i = 0; i < cols_count; i++) {
+				for (var i = 0; i < cols_count; i++) {
 					glass[i][0] = 0;
 				}
 				j++;
@@ -503,14 +507,14 @@ function drawBackground() {
 	context.strokeStyle = colors.cupGrid;
 	context.lineWidth = 1;
 	var x = cell_width, y = 0;
-	for (i = 1; i < cols_count; i++) {
+	for (var i = 1; i < cols_count; i++) {
 		context.beginPath();
 		context.moveTo(x * i, 0);
 		context.lineTo(x * i, $canvas.height());
 		context.stroke();
 	}
 	x = 0; y = cell_height;
-	for (i = 1; i < rows_count; i++) {
+	for (var i = 1; i < rows_count; i++) {
 		context.beginPath();
 		context.moveTo(0, y * i);
 		context.lineTo($canvas.width(), y * i);
@@ -526,8 +530,8 @@ function drawScene() {
 	drawBackground();
 	// Draw cup content
 	context.fillStyle = colors.cupContent;
-	for (i = 0; i < cols_count; i++) {
-		for (j = 0; j < rows_count; j++) {
+	for (var i = 0; i < cols_count; i++) {
+		for (var j = 0; j < rows_count; j++) {
 			if (glass[i][j] == 1) {
 				context.fillRect(i * cell_width, j * cell_height, cell_width, cell_height);
 			}
@@ -535,8 +539,8 @@ function drawScene() {
 	}
 	// Draw next figure shadow
 	context.fillStyle = colors.nextFigureShadow;
-	next_figure = [];
-	for (i = 0; i < 4; i++) {
+	var next_figure = [];
+	for (var i = 0; i < 4; i++) {
 		next_figure[i] = figures[next_figure_type][next_figure_position][i].slice(0);
 		context.fillRect((next_figure[i][0] + 4) * cell_width, next_figure[i][1] * cell_height, cell_width, cell_height);
 	}
