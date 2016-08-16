@@ -16,7 +16,13 @@ var strings;
 
 var pageContentHeight;
 
-var canvas;
+var $linesCaption;
+var $levelCaption;
+var $lines;
+var $level;
+var $tetrecPageHeader;
+
+var canvas, $canvas;
 var canvas_width, canvas_height;
 var context;
 var glass = [];
@@ -79,13 +85,13 @@ function adjustPageContentHeight() {
 
 function adjustCanvasHeight() {
 	canvas_height = pageContentHeight * 0.99;
-	canvas_width = canvas_height / 2;	
+	canvas_width = canvas_height / 2;
 	canvas.height = canvas_height;
 	canvas.width = canvas_width;
 	// Calculate cell dimensions
 	cell_width = canvas_width / cols_count;
 	cell_height = canvas_height / rows_count;
-	/*console.log("cell width: " + cell_width + ", cell height: " + cell_height + 
+	/*console.log("cell width: " + cell_width + ", cell height: " + cell_height +
 		", canvas width: " + canvas_width + ", canvas height: " + canvas_height);*/
 	console.log("adjusting canvas size!");
 }
@@ -108,6 +114,12 @@ $( document ).on( "pagecontainershow", function( event, ui ) {
 	if (activePageId === "tetrec_page") {
 		console.log("Staring new game");
 		canvas = document.getElementById('tetrec_canvas');
+    $canvas = $(canvas);
+    $linesCaption = $('#linesCaption');
+    $levelCaption = $('#levelCaption');
+    $lines = $('#lines');
+    $level = $('#level');
+    $tetrecPageHeader = $('h1 #tetrecPageHeader');
 		context = canvas.getContext('2d');
 		adjustCanvasHeight();
 		prepareGame();
@@ -144,32 +156,32 @@ function prepareGame() {
 	disableTextSelection();
 	prepareTranslation();
 	// Translate UI strings
-	$('#linesCaption').text(strings.lines);
-	$('#levelCaption').text(strings.level);
-	$('h1 #tetrecPageHeader').text(strings.tetrec);
+	$linesCaption.text(strings.lines);
+	$levelCaption.text(strings.level);
+	$tetrecPageHeader.text(strings.tetrec);
 	endGame();
 	prepareFigures();
-	$('#tetrec_canvas').attr("tabindex", "0");
+	$canvas.attr("tabindex", "0");
 	startGame();
 }
 
 function startGame() {
 	prepareVariables();
-	$('#tetrec_canvas').blur(pauseGame).focus(unpauseGame);
+	$canvas.blur(pauseGame).focus(unpauseGame);
 	generateFigureTypeAndPosition();
 	count = 0;
 	level = 0;
 	interval = 1000;
-	$('#lines').html(count);
-	$('#level').html(level);
+	$lines.html(count);
+	$level.html(level);
 	drawScene();
 	playing = true;
-	$('#tetrec_canvas').focus();
+	$canvas.focus();
 }
 
 function endGame() {
 	pauseGame();
-	$('#tetrec_canvas')
+	$canvas
 		.unbind('focus')
 		.unbind('blur')
 		//.unbind('keydown')
@@ -185,7 +197,7 @@ function pauseGame() {
 	cancelAnimationFrame(moveFigureRequestId);
 	moveFigureRequestId = 0;
 	down_timer = 0;
-	$('#tetrec_canvas')
+	$canvas
 		.focus(unpauseGame)
 		.unbind('mousemove')
 		.unbind('keydown');
@@ -193,18 +205,18 @@ function pauseGame() {
 	$( document ).off ( "vmousedown", "#tetrec_canvas" );
 	$( document ).off ( "vmouseup", "#tetrec_canvas" );
 	$( document ).off ( "vmouseout", "#tetrec_canvas" );
-	$('h1 #tetrecPageHeader').text(strings.paused);
+	$tetrecPageHeader.text(strings.paused);
 }
 
 function unpauseGame() {
-	$('#tetrec_canvas')
+	$canvas
 		.unbind('focus')
 		.keydown(onKeyDown);
 	$( document ).on ( "vmousemove", "#tetrec_canvas", onTouchMove );
 	$( document ).on ( "vmousedown", "#tetrec_canvas", onTouchStart );
 	$( document ).on ( "vmouseup", "#tetrec_canvas", onTouchEnd );
 	$( document ).on ( "vmouseout", "#tetrec_canvas", onTouchOut );
-	$('h1 #tetrecPageHeader').text(strings.tetrec);
+	$tetrecPageHeader.text(strings.tetrec);
 	if (down_timer == 0) {
 		down_timer = setTimeout(processGame, interval);
 	}
@@ -283,7 +295,7 @@ function onTouchMove(event) {
 	// check if we can register move direction
 	if (direction != directions.RIGHT && xDiff > touch_move_threshold) {
 		direction = directions.RIGHT;
-	} 
+	}
 	if (direction != directions.LEFT && xDiff < -touch_move_threshold) {
 		direction = directions.LEFT;
 	}
@@ -315,7 +327,7 @@ function moveFigure() {
 		drawScene();
 		turnFigureLastTimestamp = currentTimestamp;
 	}
-	moveFigureRequestId = requestAnimationFrame(moveFigure, $('#tetrec_canvas'));
+	moveFigureRequestId = requestAnimationFrame(moveFigure, $canvas);
 }
 
 function onTouchStart(event) {
@@ -324,7 +336,7 @@ function onTouchStart(event) {
 		oldPageY = event.clientY;
 		touching = true;
 		//cancelAnimationFrame(moveFigureRequestId);
-		moveFigureRequestId = requestAnimationFrame(moveFigure, $('#tetrec_canvas'));
+		moveFigureRequestId = requestAnimationFrame(moveFigure, $canvas);
 	}
 }
 
@@ -339,7 +351,7 @@ function onTouchEnd(event) {
 
 function onTouchOut(event) {
 	// TODO: maybe need to trigger move event to perform the final move?
-	$('#tetrec_canvas').trigger('vmouseup');
+	$canvas.trigger('vmouseup');
 }
 
 function dropFigure() {
@@ -360,7 +372,7 @@ function dropFigure() {
 		}
 		the_highest_places[i] = j - figure[i][1] - 1;
 	}
-	min_height = Math.min(the_highest_places[0], the_highest_places[1], the_highest_places[2], 
+	min_height = Math.min(the_highest_places[0], the_highest_places[1], the_highest_places[2],
 		the_highest_places[3]);
 	figure_y += min_height;
 	checkIfDropped();
@@ -464,8 +476,8 @@ function checkIfDropped() {
 						down_timer = setTimeout(processGame, interval);
 					}
 				}
-				$('#lines').html(count);
-				$('#level').html(level);
+				$lines.html(count);
+				$level.html(level);
 			}
 		}
 		// Generate new figure and its position
@@ -486,7 +498,7 @@ function drawBackground() {
 	console.log("drawing bg");
 	// Fill the cup with background color
 	context.fillStyle = colors.cupBackground;
-	context.fillRect(0, 0, $('#tetrec_canvas').width(), $('#tetrec_canvas').height());
+	context.fillRect(0, 0, $canvas.width(), $canvas.height());
 	// Draw cup grid
 	context.strokeStyle = colors.cupGrid;
 	context.lineWidth = 1;
@@ -494,14 +506,14 @@ function drawBackground() {
 	for (i = 1; i < cols_count; i++) {
 		context.beginPath();
 		context.moveTo(x * i, 0);
-		context.lineTo(x * i, $('#tetrec_canvas').height());
+		context.lineTo(x * i, $canvas.height());
 		context.stroke();
 	}
 	x = 0; y = cell_height;
 	for (i = 1; i < rows_count; i++) {
 		context.beginPath();
 		context.moveTo(0, y * i);
-		context.lineTo($('#tetrec_canvas').width(), y * i);
+		context.lineTo($canvas.width(), y * i);
 		context.stroke();
 	}
 }
@@ -509,7 +521,7 @@ function drawBackground() {
 function drawScene() {
 	console.log("drawing scene");
 	// Clear the scene
-	context.clearRect(0, 0, $('#tetrec_canvas').width(), $('#tetrec_canvas').height());
+	context.clearRect(0, 0, $canvas.width(), $canvas.height());
 	// Draw background
 	drawBackground();
 	// Draw cup content
